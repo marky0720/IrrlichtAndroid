@@ -10,6 +10,7 @@ As always, I include the header files, use the irr namespace,
 and tell the linker to link with the .lib file.
 */
 #define _IRR_COMPILE_WITH_ANDROID_DEVICE_ 1
+//#define _IRR_COMPILE_WITH_GUI_ 1
 #include <irrlicht.h>
 #ifndef _IRR_COMPILE_WITH_ANDROID_DEVICE_
 #include "driverChoice.h"
@@ -196,7 +197,7 @@ static void handle_cmd(struct android_app* app, int32_t cmd)
     {
         case APP_CMD_INIT_WINDOW:
 			{
-				/*
+        /* TODO debug here why initial will crash
         data->device = createDevice( video::EDT_SOFTWARE, 
 								core::dimension2d<u32>(ANativeWindow_getWidth(app->window), ANativeWindow_getHeight(app->window)), //TODO[reizen]: doesn't work at the moment, always max resolution
 								16,
@@ -205,8 +206,8 @@ static void handle_cmd(struct android_app* app, int32_t cmd)
 								false, 
 								0);//,
 								//(void*)data->pApp->window);
-                */
-                data->device = createDevice();
+                     */
+                    data->device = createDevice();
 					data->driver = data->device->getVideoDriver();
 					data->smgr = data->device->getSceneManager();
 					data->images = data->driver->getTexture("/sdcard/irr/media/2ddemo.png");
@@ -269,6 +270,9 @@ void android_main(struct android_app* state)
 	core::rect<s32> imp1(349,15,385,78);
 	core::rect<s32> imp2(387,15,423,78);
 
+	//Add by marky for test
+    handle_cmd(state, APP_CMD_INIT_WINDOW);
+
 	for(;;)
 	{
 		// Read all pending events.
@@ -279,9 +283,25 @@ void android_main(struct android_app* state)
 		// If not animating, we will block forever waiting for events.
 		// If animating, we loop until all events are read, then continue
 		// to draw the next frame of animation.
-		while((ident=ALooper_pollAll(data.bAnimating ? 0 : -1, NULL, &events, (void**)&source)) >= 0)
+		LOGI("marky android_main Hellow 1");
+       {
+			u32 time = data.device->getTimer()->getTime();
+			if (data.font)
+				data.font->draw(L"This demo shows that Irrlicht is also capable of drawing 2D graphics.",
+					core::rect<s32>(130,10,300,50),
+					video::SColor(255,255,255,255));
+
+			// draw some other text
+			if (data.font2)
+				data.font2->draw(L"Also mixing with 3d graphics is possible.",
+					core::rect<s32>(130,20,300,60),
+					video::SColor(255,time % 255,time % 255,255));
+        }
+    while((ident=ALooper_pollAll(data.bAnimating ? 0 : -1, NULL, &events, (void**)&source)) >= 0)
 		{
-			// Process this event.
+			
+      LOGI("marky android_main Hellow 2");
+      // Process this event.
 			if (source != NULL)
 			{
 				source->process(state, source);

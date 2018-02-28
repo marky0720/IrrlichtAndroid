@@ -5,7 +5,7 @@ PVRSDKDIR := $(LOCAL_PATH)
 include $(CLEAR_VARS)
 
 LOCAL_MODULE    := IrrlichtAndroid
-LOCAL_MODULE_FILENAME := libIrrlichtAndroid
+#LOCAL_MODULE_FILENAME := libIrrlichtAndroid
 
 ### Add all source file names to be included in lib separated by a whitespace
 IRR_MESH_LOADER := \
@@ -365,14 +365,32 @@ LOCAL_C_INCLUDES := \
 include $(BUILD_STATIC_LIBRARY)
 #include $(BUILD_SHARED_LIBRARY)		
 					
-# --------------------------------------------------------------------------					
+# faild--------------------------------------------------------------------------					
+#the same as #$(call import-module,android/native_app_glue)
+
+#LOCAL_PATH:= $(call my-dir)
+
+#include $(CLEAR_VARS)
+
+#LOCAL_MODULE:= android_native_app_glue
+#LOCAL_SRC_FILES:= android_native_app_glue.c
+#LOCAL_C_INCLUDES := \
+#	$(LOCAL_PATH) \
+#	$(LOCAL_PATH)/../include \
+#LOCAL_EXPORT_C_INCLUDES := $(LOCAL_PATH)
+#LOCAL_EXPORT_LDLIBS := -llog
+
+#include $(BUILD_STATIC_LIBRARY)
+
+# --------------------------------------------------------------------------	
+
 					
 JNI_FOLDER := $(call my-dir)
 
 include $(CLEAR_VARS)
 
 LOCAL_MODULE    := twodgraphics
-LOCAL_MODULE_FILENAME := libtwodgraphics
+#LOCAL_MODULE_FILENAME := libtwodgraphics
 
 ### Add all source file names to be included in lib separated by a whitespace
 LOCAL_SRC_FILES := \
