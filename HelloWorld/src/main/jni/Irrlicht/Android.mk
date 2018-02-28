@@ -5,7 +5,7 @@ PVRSDKDIR := $(LOCAL_PATH)
 include $(CLEAR_VARS)
 
 LOCAL_MODULE    := IrrlichtAndroid
-LOCAL_MODULE_FILENAME := IrrlichtAndroid
+LOCAL_MODULE_FILENAME := libIrrlichtAndroid
 
 ### Add all source file names to be included in lib separated by a whitespace
 IRR_MESH_LOADER := \
@@ -372,7 +372,7 @@ JNI_FOLDER := $(call my-dir)
 include $(CLEAR_VARS)
 
 LOCAL_MODULE    := twodgraphics
-LOCAL_MODULE_FILENAME := IrrlichtAndroid
+LOCAL_MODULE_FILENAME := libtwodgraphics
 
 ### Add all source file names to be included in lib separated by a whitespace
 LOCAL_SRC_FILES := \
