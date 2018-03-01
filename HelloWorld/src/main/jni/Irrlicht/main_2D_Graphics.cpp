@@ -222,7 +222,8 @@ static void handle_cmd(struct android_app* app, int32_t cmd)
 
 					data->driver->getMaterial2D().TextureLayer[0].BilinearFilter=true;
 					data->driver->getMaterial2D().AntiAliasing=video::EAAM_FULL_BASIC;
-          LOGI("marky APP_CMD_INIT_WINDOW 1");
+					LOGI("marky ANativeWindow_getWidth = %d,%d ", ANativeWindow_getWidth(app->window), ANativeWindow_getHeight(app->window));
+                    LOGI("marky APP_CMD_INIT_WINDOW 1");
         	}
             break;
 
@@ -327,24 +328,26 @@ void android_main(struct android_app* state)
         {     
 			if (data.device->isWindowActive())
 			{
+				LOGI("marky isWindowActive Draw");
+
 				u32 time = data.device->getTimer()->getTime();
-				data.driver->beginScene(true, true, video::SColor(255,120,102,136));
+				data.driver->beginScene(true, true, video::SColor(255,0,0,1));
 				
 
 				// draw fire & dragons background world
 				data.driver->draw2DImage(data.images, core::position2d<s32>(50,50),
 					core::rect<s32>(0,0,342,224), 0,
-					video::SColor(255,255,255,255), true);
+					video::SColor(0,255,0,1), true);
 
 				// draw flying imp
 				data.driver->draw2DImage(data.images, core::position2d<s32>(164,125),
 					(time/500 % 2) ? imp1 : imp2, 0,
-					video::SColor(255,255,255,255), true);
+					video::SColor(0,0,255,1), true);
 
 				// draw second flying imp with colorcylce
 				data.driver->draw2DImage(data.images, core::position2d<s32>(270,105),
 					(time/500 % 2) ? imp1 : imp2, 0,
-					video::SColor(255,(time) % 255,255,255), true);
+					video::SColor(0,(time) % 255,0,255), true);
 
 				/*
 				Drawing text is really simple. The code should be self
@@ -358,14 +361,14 @@ void android_main(struct android_app* state)
         LOGI("marky_IRR_COMPILE_WITH_GUI_ Draw data.font");
 				data.font->draw(L"This demo shows that Irrlicht is also capable of drawing 2D graphics.",
 					core::rect<s32>(130,10,300,50),
-					video::SColor(255,255,255,255));
+					video::SColor(255,255,0,1));
       }
 			// draw some other text
 			if (data.font2)  {
 				LOGI("marky_IRR_COMPILE_WITH_GUI_ Draw data.font2");
         data.font2->draw(L"Also mixing with 3d graphics is possible.",
 					core::rect<s32>(130,20,300,60),
-					video::SColor(255,time % 255,time % 255,255));
+					video::SColor(0,time % 255,time % 255,1));
       }
 #endif
 					

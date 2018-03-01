@@ -342,6 +342,10 @@ BZIP2_LIB_OBJ := \
 
 LOCAL_CFLAGS := -DBUILD_OGLES2 -g -D_DEBUG
 
+ifeq ($(TARGET_ARCH_ABI),x86)
+LOCAL_CFLAGS += -fno-stack-protector 
+endif
+
 LOCAL_SRC_FILES := \
 	$(IRR_MESH_OBJ) \
 	$(IRR_OBJ) \
@@ -397,12 +401,6 @@ LOCAL_MODULE    := twodgraphics
 #LOCAL_ARM_MODE := arm
 
 ### Add all source file names to be included in lib separated by a whitespace
-LOCAL_SRC_FILES := \
-	main.cpp
-
-LOCAL_C_INCLUDES := \
-	$(LOCAL_PATH) \
-	$(LOCAL_PATH)/../include \
 
 LOCAL_CFLAGS := -DBUILD_OGLES2 -g -D_DEBUG
 
@@ -410,11 +408,21 @@ ifeq ($(TARGET_ARCH_ABI),x86)
 LOCAL_CFLAGS += -fno-stack-protector 
 endif
 
+LOCAL_SRC_FILES := \
+	main_hellow.cpp
+
+LOCAL_C_INCLUDES := \
+	$(LOCAL_PATH) \
+	$(LOCAL_PATH)/../include \
+
+
+
 LOCAL_LDLIBS :=  \
 				-llog \
 				-landroid \
 				-lEGL \
 				-lGLESv2 \
+        -lGLESv1_CM \
 				-lz
 
 LOCAL_STATIC_LIBRARIES := \

@@ -43,12 +43,17 @@ After we have set up the IDE, the compiler will know where to find the Irrlicht
 Engine header files so we can include it now in our code.
 */
 #define _IRR_COMPILE_WITH_ANDROID_DEVICE_ 1
+#define _IRR_COMPILE_WITH_GUI_ 1
 #include <irrlicht.h>
 #include "os.h"
 #ifdef _IRR_COMPILE_WITH_ANDROID_DEVICE_
+#include "os.h"
 #include <android/log.h>
 #include <android/window.h>
+#include <android/sensor.h>
 #include <android_native_app_glue.h>
+#define LOGI(...) ((void)__android_log_print(ANDROID_LOG_INFO, "sensor", __VA_ARGS__))
+#define LOGW(...) ((void)__android_log_print(ANDROID_LOG_WARN, "native-activity", __VA_ARGS__))
 #endif
 /*
 In the Irrlicht Engine, everything can be found in the namespace 'irr'. So if
@@ -83,11 +88,13 @@ of the console window, which pops up when starting a program with main(). This
 is done by the second pragma. We could also use the WinMain method, though
 losing platform independence then.
 */
-#ifdef _IRR_WINDOWS_
+#if 0
+//#ifdef _IRR_WINDOWS_
 #pragma comment(lib, "Irrlicht.lib")
 #pragma comment(linker, "/subsystem:windows /ENTRY:mainCRTStartup")
 #endif
 
+#if 0
 struct SHelloTriangleData
 {
 	IrrlichtDevice *device;
@@ -97,6 +104,7 @@ struct SHelloTriangleData
 	bool bAnimating;
 	struct android_app* pApp;
 };
+
 
 void *pWindow; 
 static void handle_cmd(struct android_app* app, int32_t cmd)
@@ -109,8 +117,8 @@ static void handle_cmd(struct android_app* app, int32_t cmd)
 			{
 				{char msg[512]; sprintf(msg, "test %s %d", __FILE__, __LINE__); os::Printer::print(msg);};
 				pWindow = (void*)data->pApp->window;
-				data->device = createDevice( video::EDT_OPENGL, dimension2d<u32>(640, 480), 16,
-					false, false, false, 0);  //EDT_OGLES2
+				data->device = createDevice( video::EDT_OGLES2, dimension2d<u32>(640, 480), 16,
+					false, false, false, 0);
 				data->driver = data->device->getVideoDriver();
 				data->smgr = data->device->getSceneManager();
 				data->mesh = data->smgr->getMesh("/sdcard/irr/media/sydney.md2");
@@ -125,7 +133,7 @@ static void handle_cmd(struct android_app* app, int32_t cmd)
 					node->setMaterialFlag(EMF_LIGHTING, false);
 					node->setMD2Animation(scene::EMAT_RUN);
 					node->setMaterialTexture( 0, data->driver->getTexture("/sdcard/irr/media/sydney.bmp") );
-				}	
+				}
 				data->smgr->addCameraSceneNode(0, vector3df(0,30,-40), vector3df(0,5,0));
         	}
             break;
@@ -141,15 +149,132 @@ static void handle_cmd(struct android_app* app, int32_t cmd)
             break;
     }
 }
+#endif
 
+
+
+
+struct AppData
+{
+	IrrlichtDevice *device;
+	irr::video::IVideoDriver* driver;
+	irr::scene::ISceneManager* smgr;
+	gui::IGUIFont* font;
+	gui::IGUIFont* font2;
+	video::ITexture* images;
+	bool bAnimating;
+	struct android_app* pApp;
+	IAnimatedMesh* mesh;
+	IAnimatedMeshSceneNode* node;
+};
+static void handle_cmd(struct android_app* app, int32_t cmd)
+{
+    struct AppData* data = (struct AppData*) app->userData;
+
+    LOGI("marky handle_cmd");
+    switch (cmd)
+    {
+        case APP_CMD_INIT_WINDOW:
+			{
+        LOGI("marky APP_CMD_INIT_WINDOW 0");
+        /* TODO debug here why initial will crash
+        data->device = createDevice( video::EDT_SOFTWARE,
+								core::dimension2d<u32>(ANativeWindow_getWidth(app->window), ANativeWindow_getHeight(app->window)), //TODO[reizen]: doesn't work at the moment, always max resolution
+								16,
+								false,
+								false,
+								false,
+								0);//,
+								//(void*)data->pApp->window);
+                     */
+                    data->device = createDevice();
+					data->driver = data->device->getVideoDriver();
+					data->smgr = data->device->getSceneManager();
+
+					if (!data->device) {
+					    LOGI("marky APP_CMD_INIT_WINDOW 0-1 -> data->device=NULL");
+					}
+					if (!data->driver) {
+					    LOGI("marky APP_CMD_INIT_WINDOW 0-2 -> data->driver=NULL");
+					}
+					if (!data->smgr) {
+					    LOGI("marky APP_CMD_INIT_WINDOW 0-3 ->data->smgr=NULL");
+					}
+
+					data->images = data->driver->getTexture("/sdcard/irr/media/2ddemo.png");
+					if (!data->images) {
+					    LOGI("marky APP_CMD_INIT_WINDOW 0 -> data->images=NULL");
+					}
+					data->driver->makeColorKeyTexture(data->images, core::position2d<s32>(0,0));
+
+#ifdef _IRR_COMPILE_WITH_GUI_
+					data->font = data->device->getGUIEnvironment()->getBuiltInFont();
+					data->font2 = data->device->getGUIEnvironment()->getBuiltInFont();//getFont("/sdcard/irr/media/fonthaettenschweiler.bmp");
+#endif
+
+					data->driver->getMaterial2D().TextureLayer[0].BilinearFilter=true;
+					data->driver->getMaterial2D().AntiAliasing=video::EAAM_FULL_BASIC;
+					LOGI("marky ANativeWindow_getWidth = %d,%d ", ANativeWindow_getWidth(app->window), ANativeWindow_getHeight(app->window));
+                    LOGI("marky APP_CMD_INIT_WINDOW 1");
+                    data->mesh = data->smgr->getMesh("/sdcard/irr/media/sydney.md2");
+                    if (data->mesh) {
+                        LOGI("marky APP_CMD_INIT_WINDOW 2");
+                        data->node = data->smgr->addAnimatedMeshSceneNode( data->mesh );
+				        LOGI("marky APP_CMD_INIT_WINDOW 3");
+				        if (data->node)
+				        {
+					        data->node->setMaterialFlag(EMF_LIGHTING, false);
+					        data->node->setMD2Animation(scene::EMAT_RUN);
+					        data->node->setMaterialTexture( 0, data->driver->getTexture("/sdcard/irr/media/sydney.bmp") );
+					        LOGI("marky APP_CMD_INIT_WINDOW 4");
+				        }
+                    }
+                    data->smgr->addCameraSceneNode(0, vector3df(0,30,-40), vector3df(0,5,0));
+                    LOGI("marky APP_CMD_INIT_WINDOW 5");
+        	}
+            break;
+
+        case APP_CMD_TERM_WINDOW:
+            LOGI("marky APP_CMD_TERM_WINDOW");
+            break;
+        case APP_CMD_GAINED_FOCUS:
+            LOGI("marky APP_CMD_GAINED_FOCUS");
+            data->bAnimating = true;
+            break;
+        case APP_CMD_LOST_FOCUS:
+            LOGI("marky APP_CMD_LOST_FOCUS");
+            data->bAnimating = false;
+            break;
+    }
+}
+
+static int32_t handle_input(struct android_app* app, AInputEvent* event) {
+    struct AppData* engine = (struct AppData*)app->userData;
+	float x = 0.0f;
+	float y = 0.0f;
+	int pc = 0;
+	int action = 0;
+    if (AInputEvent_getType(event) == AINPUT_EVENT_TYPE_MOTION) {
+		pc = AMotionEvent_getPointerCount(event);
+		action = AMotionEvent_getAction(event);
+        x = AMotionEvent_getX(event, 0);
+        y = AMotionEvent_getY(event, 0);
+		LOGI("marky %x count: %d  x:%f y:$f", action, pc, x, y);
+        return 1;
+    }
+    return 0;
+}
 
 /*
 This is the main method. We can now use main() on every platform.
 */
 void android_main(struct android_app* state)
 {
-    SHelloTriangleData data;
-	memset(&data, 0, sizeof(SHelloTriangleData));
+    //SHelloTriangleData data;
+	//memset(&data, 0, sizeof(SHelloTriangleData));
+
+    AppData data;
+	memset(&data, 0, sizeof(AppData));
 
 	// Make sure glue isn't stripped.
 	app_dummy();
@@ -157,6 +282,7 @@ void android_main(struct android_app* state)
 	state->userData = &data;
 	state->onAppCmd = handle_cmd;
 	data.pApp = state;
+	state->onInputEvent = handle_input;
 
 	for(;;)
 	{
@@ -185,14 +311,15 @@ void android_main(struct android_app* state)
 		}
         if(data.bAnimating && data.device->run())
         {
-			data.driver->beginScene(true, true, SColor(255,100,101,140));
+			//LOGI("marky drawAll ");
+			data.driver->beginScene(true, true, SColor(255,0,0,1));
 			data.smgr->drawAll();
-			data.driver->endScene();        
+			data.driver->endScene();
         }		
 	}
 }
 
-
+#if 0
 int main()
 {
 	/*
@@ -337,7 +464,7 @@ int main()
 
 	return 0;
 }
-
+#endif
 /*
 That's it. Compile and run.
 **/
