@@ -6,6 +6,7 @@ include $(CLEAR_VARS)
 
 LOCAL_MODULE    := IrrlichtAndroid
 #LOCAL_MODULE_FILENAME := libIrrlichtAndroid
+#LOCAL_ARM_MODE := arm
 
 ### Add all source file names to be included in lib separated by a whitespace
 IRR_MESH_LOADER := \
@@ -391,6 +392,7 @@ include $(CLEAR_VARS)
 
 LOCAL_MODULE    := twodgraphics
 #LOCAL_MODULE_FILENAME := libtwodgraphics
+#LOCAL_ARM_MODE := arm
 
 ### Add all source file names to be included in lib separated by a whitespace
 LOCAL_SRC_FILES := \
