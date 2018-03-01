@@ -192,11 +192,13 @@ struct AppData
 static void handle_cmd(struct android_app* app, int32_t cmd)
 {
     struct AppData* data = (struct AppData*) app->userData;
-
+    
+    LOGI("marky handle_cmd");
     switch (cmd)
     {
         case APP_CMD_INIT_WINDOW:
 			{
+        LOGI("marky APP_CMD_INIT_WINDOW 0");
         /* TODO debug here why initial will crash
         data->device = createDevice( video::EDT_SOFTWARE, 
 								core::dimension2d<u32>(ANativeWindow_getWidth(app->window), ANativeWindow_getHeight(app->window)), //TODO[reizen]: doesn't work at the moment, always max resolution
@@ -220,15 +222,19 @@ static void handle_cmd(struct android_app* app, int32_t cmd)
 
 					data->driver->getMaterial2D().TextureLayer[0].BilinearFilter=true;
 					data->driver->getMaterial2D().AntiAliasing=video::EAAM_FULL_BASIC;
+          LOGI("marky APP_CMD_INIT_WINDOW 1");
         	}
             break;
 
         case APP_CMD_TERM_WINDOW:
+            LOGI("marky APP_CMD_TERM_WINDOW");
             break;
         case APP_CMD_GAINED_FOCUS:
+            LOGI("marky APP_CMD_GAINED_FOCUS");
             data->bAnimating = true;
             break;
         case APP_CMD_LOST_FOCUS:
+            LOGI("marky APP_CMD_LOST_FOCUS");
             data->bAnimating = false;
             break;
     }
@@ -248,7 +254,7 @@ static int32_t handle_input(struct android_app* app, AInputEvent* event) {
 		action = AMotionEvent_getAction(event);
         x = AMotionEvent_getX(event, 0);
         y = AMotionEvent_getY(event, 0);
-		LOGI("%x count: %d  x:%f y:$f", action, pc, x, y);
+		LOGI("marky %x count: %d  x:%f y:$f", action, pc, x, y);
         return 1;
     }
     return 0;
@@ -271,7 +277,7 @@ void android_main(struct android_app* state)
 	core::rect<s32> imp2(387,15,423,78);
 
 	//Add by marky for test
-    handle_cmd(state, APP_CMD_INIT_WINDOW);
+  //handle_cmd(state, APP_CMD_INIT_WINDOW);
 
 	for(;;)
 	{
@@ -283,6 +289,7 @@ void android_main(struct android_app* state)
 		// If not animating, we will block forever waiting for events.
 		// If animating, we loop until all events are read, then continue
 		// to draw the next frame of animation.
+    /*
 		LOGI("marky android_main Hellow 1");
        {
 			u32 time = data.device->getTimer()->getTime();
@@ -297,6 +304,7 @@ void android_main(struct android_app* state)
 					core::rect<s32>(130,20,300,60),
 					video::SColor(255,time % 255,time % 255,255));
         }
+        */
     while((ident=ALooper_pollAll(data.bAnimating ? 0 : -1, NULL, &events, (void**)&source)) >= 0)
 		{
 			
@@ -344,17 +352,21 @@ void android_main(struct android_app* state)
 				*/
 
 #ifdef _IRR_COMPILE_WITH_GUI_
+      LOGI("marky_IRR_COMPILE_WITH_GUI_ Draw");
 			// draw some text
-			if (data.font)
+			if (data.font) {
+        LOGI("marky_IRR_COMPILE_WITH_GUI_ Draw data.font");
 				data.font->draw(L"This demo shows that Irrlicht is also capable of drawing 2D graphics.",
 					core::rect<s32>(130,10,300,50),
 					video::SColor(255,255,255,255));
-
+      }
 			// draw some other text
-			if (data.font2)
-				data.font2->draw(L"Also mixing with 3d graphics is possible.",
+			if (data.font2)  {
+				LOGI("marky_IRR_COMPILE_WITH_GUI_ Draw data.font2");
+        data.font2->draw(L"Also mixing with 3d graphics is possible.",
 					core::rect<s32>(130,20,300,60),
 					video::SColor(255,time % 255,time % 255,255));
+      }
 #endif
 					
 				data.driver->enableMaterial2D();
